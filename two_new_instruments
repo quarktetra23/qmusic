@@ -1,0 +1,103 @@
+from qiskit import QuantumCircuit, Aer, transpile
+from midiutil import MIDIFile
+
+# Build the circuit for a random walk on a cube
+def circ(input):
+    qc = QuantumCircuit(5, 3)
+    for i, v in enumerate(input):
+        # This encodes the output state from the previous run as input in the next circuit
+        if v == '1':
+            qc.x(2-i)
+    qc.h(3)
+    qc.h(4)
+    qc.cx(4, 0)
+    qc.x(4)
+    qc.cx(4, 1)
+    qc.cx(3, 2)
+    qc.ccx(4, 3, 1)
+    qc.x(4)
+    qc.ccx(4, 3, 0)
+    qc.x(4)
+    qc.ccx(4, 3, 2)
+    qc.barrier(range(3))
+    qc.measure([0, 1, 2], [0, 1, 2])
+    return qc
+
+backend_sim = Aer.get_backend('qasm_simulator')
+
+# Initialize the first note
+notes = ['001']
+
+# Generate a sequence of 101 notes
+for i in range(100):
+    qc = circ(notes[i])
+    job_sim = backend_sim.run(transpile(qc, backend_sim), shots=1024)
+    result_sim = job_sim.result()
+    counts = result_sim.get_counts(qc)
+    max_key = max(counts, key=counts.get)
+    notes.append(max_key)
+
+# Initialize the first rhythm
+rhythm = ['000']
+
+# Generate a sequence of 101 rhythms
+for i in range(100):
+    qc = circ(rhythm[i])
+    job_sim = backend_sim.run(transpile(qc, backend_sim), shots=1024)
+    result_sim = job_sim.result()
+    counts = result_sim.get_counts(qc)
+    max_key = max(counts, key=counts.get)
+    rhythm.append(max_key)
+
+print(notes)
+print(rhythm)
+
+# Encoding the output quantum states to a particular pitch
+# The numbers correspond to a MIDI frequency
+note_dic = {'000': 60, '001': 62, '100': 64, '010': 65, '011': 67, '101': 69, '111': 71, '110': 72}
+
+# Encoding the output quantum states to a particular rhythmic beat
+rhythm_dic = {'000': 4, '001': 3, '100': 1, '010': 2, '011': 1.5, '101': 0.75, '111': 0.25, '110': 0.5}
+
+# Number of instruments
+num_instruments = 3  # Including drums and guitar
+
+# Create a single track for each instrument
+MyMIDI = MIDIFile(num_instruments)
+
+# Create a list of channels for each instrument
+channels = list(range(num_instruments))
+
+# Assign instruments to channels
+instruments = {
+    0: 118,  # Drums
+    1: 25,   # Acoustic Guitar (nylon)
+    2: 48    # String Ensemble 1
+}
+
+# Set the initial time, duration, tempo, and volume
+time = 0
+duration = 1
+tempo = 80
+volume = 100
+
+# Iterate over instruments and add notes to corresponding tracks
+for i in range(num_instruments):
+    MyMIDI.addTempo(i, time, tempo)  # Add tempo track for each instrument
+    MyMIDI.addProgramChange(i, channels[i], time, instruments[i])  # Assign instrument to the channel
+
+    for j in range(len(notes)):
+        duration = rhythm_dic.get(rhythm[j])
+        pitch = note_dic.get(notes[j])
+
+        # Add notes for the current duration on the corresponding track and channel
+        MyMIDI.addNote(i, channels[i], pitch, time, duration, volume)
+        MyMIDI.addNote(i, channels[i], pitch-5, time, duration, volume)
+        MyMIDI.addNote(i, channels[i], pitch-7, time, duration, volume)
+        MyMIDI.addNote(i, channels[i], pitch-12, time, duration, volume)
+
+        time = duration + time + 0.25
+
+# Save the MIDI file
+with open("/Users/username/Desktop/Quantum_with_drums_guitar.mid", "wb") as output_file:
+    MyMIDI.writeFile(output_file)
