@@ -7,19 +7,19 @@ def circ(input):
     #This encodes the output state from previous run as input in the next circuit
     if v=='1':
       qc.x(2-i)
-  qc.h(3)
-  qc.h(4)
-  qc.cx(4, 0)
-  qc.x(4)
-  qc.cx(4, 1)
-  qc.cx(3, 2)
-  qc.ccx(4, 3, 1)
-  qc.x(4)
-  qc.ccx(4, 3, 0)
-  qc.x(4)
-  qc.ccx(4, 3, 2)
-  qc.barrier(range(3))
-  qc.measure([0,1,2],[0,1,2])
+      qc.h(3)
+      qc.h(4)
+      qc.cx(4, 0)
+      qc.x(4)
+      qc.cx(4, 1)
+      qc.cx(3, 2)
+      qc.ccx(4, 3, 1)
+      qc.x(4)
+      qc.ccx(4, 3, 0)
+      qc.x(4)
+      qc.ccx(4, 3, 2)
+      qc.barrier(range(3))
+      qc.measure([0,1,2],[0,1,2])
   return qc
 
 from qiskit import Aer
@@ -59,12 +59,13 @@ note_dic = {'000':60, '001':62, '100':64, '010':65, '011':67, '101':69, '111':71
 #Encoding the ouput quantum states to a particular rhythmic beat
 rhythm_dic = {'000':4, '001':3, '100':1, '010':2, '011':1.5, '101':0.75, '111':0.25, '110':0.5}
 
+#semantics of the musical piece
 from midiutil import MIDIFile
 track    = 0
 channel  = 2
-time     = 0   #time at which the note will be played
-duration = 1   #The duration/beat note will be played for
-tempo    = 80  #Tempo of the whole arrangement
+time     = 0   
+duration = 1   
+tempo    = 80 
 volume   = 100
 
 #Create a single track
@@ -72,10 +73,8 @@ MyMIDI = MIDIFile(1)
 MyMIDI.addTempo(track,time, tempo)
 
 for i in range (len(notes)):
-
   #Duration of the note taken from the generated rhythm sequence
   duration = rhythm_dic.get(rhythm[i])
-
   #Pitch of the note taken from the generated note sequence
   pitch = note_dic.get(notes[i])
 
@@ -88,5 +87,6 @@ for i in range (len(notes)):
   time = duration + time + 0.25
 
 #output the arrangement to a MIDI file
+#can change the location where the music file be stored on the local machine 
 with open("/Users/amanhas/Desktop/Quantum.mid", "wb") as output_file:
     MyMIDI.writeFile(output_file)
