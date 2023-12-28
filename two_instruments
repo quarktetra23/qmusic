@@ -1,3 +1,5 @@
+#this code egenrates music from two instruments instaed of one. For one instrument, refer to qmuic.py 
+
 from qiskit import QuantumCircuit, Aer, transpile
 from midiutil import MIDIFile
 
