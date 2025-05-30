@@ -1,9 +1,17 @@
-# qmusic
-My Experiments with Quantum Music.
+# 🎶 QMusic: Quantum-Generated Music with Qiskit
 
-How to run it on your local machine 
-To set up the QMusic project:
+QMusic is a creative project that explores the intersection of **quantum computing** and **music generation**. Using Qiskit, this project generates music patterns by encoding musical structures into quantum circuits and interpreting the results as musical notes.
 
-1. Clone or download this repository to your local machine.
-2. Ensure you have the necessary environment to run Python scripts.
+Each Python script corresponds to a different instrument track, allowing experimentation with layered quantum-composed music.
+
+---
+
+## 🌌 Project Highlights
+
+- 🎼 Music generation using quantum circuits
+- 🧠 Built entirely with Qiskit (IBM's quantum SDK)
+- 🎹 Separate files for different instruments
+- 🧪 Simple, interpretable design to demonstrate creative uses of quantum computing
+
+---
 
